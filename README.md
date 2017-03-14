@@ -5,7 +5,7 @@ Important:
 Before first use please create directories:
 
 
-csvresults/mic1
-csvresults/mic2
-csvresults/mic3
-csvresults/mic4
+* csvresults/mic1
+* csvresults/mic2
+* csvresults/mic3
+* csvresults/mic4
