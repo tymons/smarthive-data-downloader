@@ -13,9 +13,7 @@ def get_available_sounds( token, hive_id ):
     headers = {'token': token}
     r = requests.get('http://raspeul.hopto.org:8080/smarthive/measurement/sound/' + str(hive_id) + '/getAvailableSounds', headers=headers, params=payload)
     json_obj = json.loads(r.text)
-    idxs = list(json_obj.values())
-    timestamps = list(json_obj.keys())
-    return json_obj
+    return list(json_obj.values())
 
 def read_last_download_id():
     f = open('last_id.txt', 'r')
@@ -37,24 +35,23 @@ def create_csv_file( probes, file_name ):
     for probe in probes:
         writer.writerow([int(probe)])
 
-def get_probes_create_charts( token, hive_id, sound_dict, start_idx ):
-    Sound = collections.namedtuple('Sound', 'id timestamp')
+def get_probes_create_charts( token, hive_id, sounds_idx, start_idx ):
     last_idx = start_idx;
-    sounds_sorted = sorted([Sound(v,k) for (k,v) in sound_dict.items()])
-    for sound in sounds_sorted:
-        if (start_idx < sound.id):
-            payload = {'soundId' : sound.id}
+    sounds_idx_sorted = sorted(sounds_idx)
+    for sound_idx in sounds_idx_sorted:
+        if (start_idx < sound_idx):
+            payload = {'soundId' : sound_idx}
             headers = {'token': token}
             r = requests.get('http://raspeul.hopto.org:8080/smarthive/measurement/sound/' + str(hive_id), headers=headers, params=payload)
             probesMic1 = json.loads(r.text)['valuesMic1']
-            create_csv_file(probesMic1, 'mic1/' + str(sound.id) + '-' + sound.timestamp)
+            create_csv_file(probesMic1, 'mic1/' + str(sound_idx) + '-' + json.loads(r.text)['timestamp'])
             probesMic2 = json.loads(r.text)['valuesMic2']
-            create_csv_file(probesMic2, 'mic2/' + str(sound.id) + '-' + sound.timestamp)
+            create_csv_file(probesMic2, 'mic2/' + str(sound_idx) + '-' + json.loads(r.text)['timestamp'])
             probesMic3 = json.loads(r.text)['valuesMic3']
-            create_csv_file(probesMic3, 'mic3/' + str(sound.id) + '-' + sound.timestamp)
+            create_csv_file(probesMic3, 'mic3/' + str(sound_idx) + '-' + json.loads(r.text)['timestamp'])
             probesMic4 = json.loads(r.text)['valuesMic4']
-            create_csv_file(probesMic4, 'mic4/' + str(sound.id) + '-' + sound.timestamp)
-            last_idx = sound.id;
+            create_csv_file(probesMic4, 'mic4/' + str(sound_idx) + '-' + json.loads(r.text)['timestamp'])
+            last_idx = sound_idx;
 
     return last_idx;
 
